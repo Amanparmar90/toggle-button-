@@ -1,34 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import offbulb from './image/offbulb.png';
 import onnbulb from './image/onnbulb.png';
 import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [toogle, setBulb] = useState(false);
-  const [bulbonncount, setBulbOnCount] = useState(0);
-  const [bulboffcount, setBulbOffCount] = useState(0);
+  const [toggle, setBulb] = useState(false);
+  const [initialTime, setInitialTime] = useState(null);
+  const [finalTime, setFinalTime] = useState(null);
+  const [onTime, setOnTime] = useState(0);
 
+  const toggleBulb = () => {
+    const currentTime = new Date();
+    if (!toggle) {
+      setInitialTime(currentTime);
+    } else {
+      setFinalTime(currentTime);
+      if (initialTime) {
+        const duration = Math.round((currentTime - initialTime) / 1000);
+        setOnTime(duration);
+      }
+    }
+    setBulb(!toggle);
+  };
+
+  useEffect(() => {
+    return () => {
+      setInitialTime(null);
+      setFinalTime(null);
+    };
+  }, []);
 
   return (
     <>
       <div className="bulb">
-        <img src={toogle ? onnbulb : offbulb} alt="bulb" />
-       <br/> <br/>
-        <button onClick={() => { setBulb(true); setBulbOnCount((bulbonncount)=> toogle? bulbonncount:bulbonncount+1) }}>
-          BULB Onn Count {bulbonncount}
-        </button>
-        <button onClick={() => { setBulb(false); setBulbOffCount((bulboffcount)=> toogle ? bulboffcount+1:bulboffcount) }}>
-          BULB Off Count {bulboffcount}
-        </button>
+        <img src={toggle ? onnbulb : offbulb} alt="bulb" />
+        <br /> <br />
+        <button onClick={toggleBulb}>Switch</button>
       </div>
-      <div className="card">
-        <button onClick={() => setCount((Count) => Count + 1)}>
-          count is {count}
-        </button>
-        <button onClick={() => setCount(0)}>
-          Reset Count
-        </button>
+      <div>
+        <p>Initial time the bulb is on: {initialTime ? initialTime.toLocaleTimeString() : 'N/A'}</p>
+        <p>Final time the bulb is on: {finalTime ? finalTime.toLocaleTimeString() : 'N/A'}</p>
+        <p>Total time the bulb is on: {onTime} seconds</p>
       </div>
     </>
   );
